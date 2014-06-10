@@ -1,7 +1,7 @@
 " @Tetsuro Takemoto
 set encoding=utf-8
-set mouse=a
 autocmd VimEnter * VimFiler -split -simple -winwidth=30 -no-quit
+let g:neocomplcache_enable_at_startup = 1
 
 " Hilight Current Line
 hi CursorLine   cterm=NONE ctermbg=DarkGray ctermfg=white guibg=Green guifg=white
