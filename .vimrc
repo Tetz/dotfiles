@@ -3,12 +3,13 @@ set encoding=utf-8
 autocmd VimEnter * VimFiler -split -simple -winwidth=40 -no-quit
 let g:neocomplcache_enable_at_startup = 1
 set tabstop=2 shiftwidth=2 expandtab
+set t_Co=256
+highlight LineNr ctermfg=grey
 
 " Hilight Current Line
 hi CursorLine   cterm=NONE ctermbg=DarkGray ctermfg=white guibg=Green guifg=white
 hi CursorColumn cterm=NONE ctermbg=DarkGray ctermfg=white guibg=Green guifg=white
 nnoremap <Leader>c :set cursorline! cursorcolumn!<CR>
-"set cursorline
 
 " Change Color when entering Insert Mode
 autocmd InsertEnter * highlight  CursorLine ctermbg=None ctermfg=None
@@ -41,7 +42,7 @@ if has('vim_starting')
  NeoBundle 'Shougo/neosnippet-snippets'
  NeoBundle 'tpope/vim-fugitive'
  NeoBundle 'kien/ctrlp.vim'
- NeoBundle 'flazz/vim-colorschemes'
+ " NeoBundle 'flazz/vim-colorschemes'
  NeoBundle 'derekwyatt/vim-scala'
  NeoBundle 'Shougo/neocomplcache.vim'
  NeoBundle 'Shougo/unite.vim'
@@ -184,7 +185,7 @@ function! s:my_tabline()  "{{{
   return s
 endfunction "}}}
 let &tabline = '%!'. s:SID_PREFIX() . 'my_tabline()'
-set showtabline=2 " 常にタブラインを表示
+set showtabline=2 
 
 " The prefix key.
 nnoremap    [Tag]   <Nop>
@@ -197,4 +198,16 @@ map <silent> [Tag]n :tabnext<CR>
 
 " END of Tab ======================
 
+" airline
+ if !exists('g:airline_symbols')
+    let g:airline_symbols = {}
+  endif
+
+  let g:airline_left_sep = ''
+  let g:airline_left_alt_sep = ''
+  let g:airline_right_sep = ''
+  let g:airline_right_alt_sep = ''
+  let g:airline_symbols.branch = ''
+  let g:airline_symbols.readonly = ''
+  let g:airline_symbols.linenr = ''
 
