@@ -15,4 +15,7 @@ Install Vim Plugins using NeoBundle
 vim -c ':NeoBundleInstall'
 ```
 
+You may need pached fonts for vim-airline  
+https://github.com/powerline/fonts
+
 ![Screenshot of my shell prompt](http://i.imgur.com/p8kcvgv.png?1)
