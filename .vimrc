@@ -1,10 +1,17 @@
 " @Tetsuro Takemoto
 set encoding=utf-8
+
+" Set Vimfiler Width
 autocmd VimEnter * VimFiler -split -simple -winwidth=40 -no-quit
 let g:neocomplcache_enable_at_startup = 1
 set tabstop=2 shiftwidth=2 expandtab
+
+" Xterm256
 set t_Co=256
 highlight LineNr ctermfg=grey
+
+" Alias
+nnoremap tb :tabe % 
 
 " Hilight Current Line
 hi CursorLine   cterm=NONE ctermbg=DarkGray ctermfg=white guibg=Green guifg=white
@@ -210,4 +217,5 @@ map <silent> [Tag]n :tabnext<CR>
   let g:airline_symbols.branch = ''
   let g:airline_symbols.readonly = ''
   let g:airline_symbols.linenr = ''
+
 
