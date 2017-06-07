@@ -1,221 +1,440 @@
-" @Tetsuro Takemoto
-set encoding=utf-8
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Sections:
+"    -> General
+"    -> VIM user interface
+"    -> Colors and Fonts
+"    -> Files and backups
+"    -> Text, tab and indent related
+"    -> Visual mode related
+"    -> Moving around, tabs and buffers
+"    -> Status line
+"    -> Editing mappings
+"    -> vimgrep searching and cope displaying
+"    -> Spell checking "    -> Misc
+"    -> Helper functions
+"
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" Set Vimfiler Width
-autocmd VimEnter * VimFiler -split -simple -winwidth=40 -no-quit
-let g:neocomplcache_enable_at_startup = 1
-set tabstop=2 shiftwidth=2 expandtab
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => General
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Dein Vim
+if &compatible
+  set nocompatible
+endif
+set runtimepath+=~/.vim/dein/repos/github.com/Shougo/dein.vim
 
-" Xterm256
-set t_Co=256
-highlight LineNr ctermfg=grey
+call dein#begin(expand('~/.vim/dein'))
 
-" Alias
-nnoremap tb :tabe % 
+call dein#add('Shougo/dein.vim')
+call dein#add('Shougo/vimproc.vim', {'build': 'make'})
 
-" Hilight Current Line
-hi CursorLine   cterm=NONE ctermbg=DarkGray ctermfg=white guibg=Green guifg=white
-hi CursorColumn cterm=NONE ctermbg=DarkGray ctermfg=white guibg=Green guifg=white
-nnoremap <Leader>c :set cursorline! cursorcolumn!<CR>
+call dein#add('Shougo/neocomplete.vim')
+call dein#add('Shougo/neomru.vim')
+call dein#add('Shougo/neosnippet')
+call dein#add('ensime/ensime-vim')
 
-" Change Color when entering Insert Mode
-autocmd InsertEnter * highlight  CursorLine ctermbg=None ctermfg=None
-" Revert Color to default when leaving Insert Mode
-autocmd InsertLeave * highlight  CursorLine ctermbg=DarkGray ctermfg=None
+call dein#end()
 
-" Line 
-set nu
+filetype plugin indent on
+syntax enable
 
-" Ctags
-set tags=tags;/
+" Sets how many lines of history VIM has to remember
+set history=500
 
-" NeoBundle
-if has('vim_starting')
-   set nocompatible               " Be iMproved
+" Enable filetype plugins
+filetype plugin on
+filetype indent on
 
-   " Required:
-   set runtimepath+=~/.vim/bundle/neobundle.vim/
- endif
+" Set to auto read when a file is changed from the outside
+set autoread
 
- " Required:
- call neobundle#begin(expand('~/.vim/bundle/'))
+" With a map leader it's possible to do extra key combinations
+" like <leader>w saves the current file
+let mapleader = ","
+let g:mapleader = ","
 
- " Let NeoBundle manage NeoBundle
- " Required:
- NeoBundleFetch 'Shougo/neobundle.vim'
+" Fast saving
+nmap <leader>w :w!<cr>
 
- " My Bundles here:
- NeoBundle 'Shougo/neosnippet.vim'
- NeoBundle 'Shougo/neosnippet-snippets'
- NeoBundle 'tpope/vim-fugitive'
- NeoBundle 'kien/ctrlp.vim'
- " NeoBundle 'flazz/vim-colorschemes'
- NeoBundle 'derekwyatt/vim-scala'
- NeoBundle 'Shougo/neocomplcache.vim'
- NeoBundle 'Shougo/unite.vim'
- NeoBundle 'Shougo/vimfiler.vim'
- NeoBundle 'bling/vim-airline'
+" :W sudo saves the file 
+" (useful for handling the permission-denied error)
+command W w !sudo tee % > /dev/null
 
- " Tab
- NeoBundle 'alpaca-tc/alpaca_powertabline'
+" Enable clipboard on Mac
+" Copy to clipboard
+vnoremap  <leader>y  "*y
+nnoremap  <leader>Y  "*yg_
+nnoremap  <leader>y  "*y
+nnoremap  <leader>yy  "*yy
 
- " colorschemes
- NeoBundle 'altercation/vim-colors-solarized'
- NeoBundle 'baskerville/bubblegum'
- NeoBundle 'nanotech/jellybeans.vim'
- NeoBundle 'w0ng/vim-hybrid'
- NeoBundle 'vim-scripts/twilight'
- NeoBundle 'jonathanfilip/vim-lucius'
- NeoBundle 'jpo/vim-railscasts-theme'
+" Paste from clipboard
+nnoremap <leader>p "+p
+nnoremap <leader>P "+P
+vnoremap <leader>p "+p
+vnoremap <leader>P "+P
 
- NeoBundle 'tpope/vim-rails'
- NeoBundle 'vim-ruby/vim-ruby'
- NeoBundle 'tpope/vim-cucumber'
- NeoBundle 'thinca/vim-quickrun'
- NeoBundle 'scrooloose/nerdcommenter'
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => VIM user interface
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Set 7 lines to the cursor - when moving vertically using j/k
+set so=7
 
- NeoBundle 'thinca/vim-ref'
- NeoBundle 'taka84u9/vim-ref-ri'
- NeoBundle 'ujihisa/ref-hoogle'
+" Avoid garbled characters in Chinese language windows OS
+let $LANG='en' 
+set langmenu=en
+source $VIMRUNTIME/delmenu.vim
+source $VIMRUNTIME/menu.vim
 
- NeoBundle 'vim-scripts/surround.vim'
- NeoBundle 'vim-scripts/L9'
- NeoBundle 'vim-scripts/YankRing.vim'
- NeoBundle 'vim-scripts/grep.vim'
- NeoBundle 'vim-scripts/sudo.vim'
- NeoBundle 'vim-scripts/AnsiEsc.vim'
+" Turn on the WiLd menu
+set wildmenu
 
- NeoBundle 'kana/vim-smartchr'
- NeoBundle 'kana/vim-textobj-user'
- NeoBundle 'nelstrom/vim-textobj-rubyblock'
- NeoBundle 'motemen/hatena-vim'
- NeoBundle 'kchmck/vim-coffee-script'
- NeoBundle 'carlosvillu/coffeScript-VIM-Snippets'
+" Ignore compiled files
+set wildignore=*.o,*~,*.pyc
+if has("win16") || has("win32")
+    set wildignore+=.git\*,.hg\*,.svn\*
+else
+    set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
+endif
 
- NeoBundle 'mattn/emmet-vim'
- NeoBundle 'claco/jasmine.vim'
- NeoBundle 'digitaltoad/vim-jade'
- NeoBundle 'tpope/vim-haml'
- NeoBundle 'nono/vim-handlebars'
- NeoBundle 'juvenn/mustache.vim'
+"Always show current position
+set ruler
 
- NeoBundle 'nathanaelkane/vim-indent-guides'
- NeoBundle 'kana/vim-submode'
- NeoBundle 'thinca/vim-poslist'
- NeoBundle 'thinca/vim-visualstar'
- NeoBundle 'Lokaltog/vim-easymotion'
- NeoBundle 'taku-o/vim-toggle'
- NeoBundle 'majutsushi/tagbar'
- NeoBundle 'thinca/vim-qfreplace'
- NeoBundle 'mattn/webapi-vim'
+" Height of the command bar
+set cmdheight=2
 
- NeoBundle 'eagletmt/ghcmod-vim'
- NeoBundle 'ujihisa/neco-ghc'
- NeoBundle 'dag/vim2hs'
- NeoBundle 'pbrisbin/html-template-syntax'
+" A buffer becomes hidden when it is abandoned
+set hid
+
+" Configure backspace so it acts as it should act
+set backspace=eol,start,indent
+set whichwrap+=<,>,h,l
+
+" Ignore case when searching
+set ignorecase
+
+" When searching try to be smart about cases 
+set smartcase
+
+" Highlight search results
+set hlsearch
+
+" Makes search act like search in modern browsers
+set incsearch 
+
+" Don't redraw while executing macros (good performance config)
+set lazyredraw 
+
+" For regular expressions turn magic on
+set magic
+
+" Show matching brackets when text indicator is over them
+set showmatch 
+" How many tenths of a second to blink when matching brackets
+set mat=2
+
+" No annoying sound on errors
+set noerrorbells
+set novisualbell
+set t_vb=
+set tm=500
+
+" Properly disable sound on errors on MacVim
+if has("gui_macvim")
+    autocmd GUIEnter * set vb t_vb=
+endif
 
 
- " You can specify revision/branch/tag.
- NeoBundle 'Shougo/vimshell', { 'rev' : '3787e5' }
+" Add a bit extra margin to the left
+set foldcolumn=1
 
- call neobundle#end()
 
- " Required:
- filetype plugin indent on
-
- " If there are uninstalled bundles found on startup,
- " this will conveniently prompt you to install them.
- NeoBundleCheck
-
-" vim:fdm=marker
-" Editor basics {{{
-" Behave like Vim instead of Vi
- set nocompatible
-" Show a status line
- set laststatus=2
-" Show the current cursor position
- set ruler
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Colors and Fonts
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Enable syntax highlighting
- syn on
-" }}}
-" Mouse {{{
-" Send more characters for redraws
- set ttyfast
-" Enable mouse use in all modes
- set mouse=a
-" Set this to the name of your terminal that supports mouse codes.
-" Must be one of: xterm, xterm2, netterm, dec, jsbterm, pterm
- set ttymouse=xterm2
-" }}}
-" Disable arrow keys {{{
- noremap <Up> <NOP>
- inoremap <Down> <NOP>
- inoremap <Left> <NOP>
- inoremap <Right> <NOP>
- noremap <Up> <NOP>
- noremap <Down> <NOP>
- noremap <Left> <NOP>
- noremap <Right> <NOP>
-" }}}
+syntax enable 
 
-" Copy and paste from the system clipboard
-set clipboard=unnamed
+" Enable 256 colors palette in Gnome Terminal
+if $COLORTERM == 'gnome-terminal'
+    set t_Co=256
+endif
 
-" Tab ======================
-noremap to :let g:vimfiler_edit_action = 'tabopen'
-noremap no :let g:vimfiler_edit_action = 'open'
-map <C-l> gt 
-map <C-h> gT
+try
+    colorscheme desert
+catch
+endtry
 
-" Anywhere SID. 
-function! s:SID_PREFIX()
-   return matchstr(expand('<sfile>'),'<SNR>\d\+_\zeSID_PREFIX$')
+set background=dark
+
+" Set extra options when running in GUI mode
+if has("gui_running")
+    set guioptions-=T
+    set guioptions-=e
+    set t_Co=256
+    set guitablabel=%M\ %t
+endif
+
+" Set utf8 as standard encoding and en_US as the standard language
+set encoding=utf8
+
+" Use Unix as the standard file type
+set ffs=unix,dos,mac
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Files, backups and undo
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Turn backup off, since most stuff is in SVN, git et.c anyway...
+set nobackup
+set nowb
+set noswapfile
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Text, tab and indent related
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Use spaces instead of tabs
+set expandtab
+
+" Be smart when using tabs ;)
+set smarttab
+
+" 1 tab == 4 spaces
+set shiftwidth=4
+set tabstop=4
+
+" Linebreak on 500 characters
+set lbr
+set tw=500
+
+set ai "Auto indent
+set si "Smart indent
+set wrap "Wrap lines
+
+
+""""""""""""""""""""""""""""""
+" => Visual mode related
+""""""""""""""""""""""""""""""
+" Visual mode pressing * or # searches for the current selection
+" Super useful! From an idea by Michael Naumann
+vnoremap <silent> * :<C-u>call VisualSelection('', '')<CR>/<C-R>=@/<CR><CR>
+vnoremap <silent> # :<C-u>call VisualSelection('', '')<CR>?<C-R>=@/<CR><CR>
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Moving around, tabs, windows and buffers
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Map <Space> to / (search) and Ctrl-<Space> to ? (backwards search)
+map <space> /
+map <c-space> ?
+
+" Disable highlight when <leader><cr> is pressed
+map <silent> <leader><cr> :noh<cr>
+
+" Smart way to move between windows
+map <C-j> <C-W>j
+map <C-k> <C-W>k
+map <C-h> <C-W>h
+map <C-l> <C-W>l
+
+" Close the current buffer
+map <leader>bd :Bclose<cr>:tabclose<cr>gT
+
+" Close all the buffers
+map <leader>ba :bufdo bd<cr>
+
+map <leader>l :bnext<cr>
+map <leader>h :bprevious<cr>
+
+" Useful mappings for managing tabs
+map <leader>tn :tabnew<cr>
+map <leader>to :tabonly<cr>
+map <leader>tc :tabclose<cr>
+map <leader>tm :tabmove 
+map <leader>t<leader> :tabnext 
+
+" Let 'tl' toggle between this and the last accessed tab
+let g:lasttab = 1
+nmap <Leader>tl :exe "tabn ".g:lasttab<CR>
+au TabLeave * let g:lasttab = tabpagenr()
+
+
+" Opens a new tab with the current buffer's path
+" Super useful when editing files in the same directory
+map <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
+
+" Switch CWD to the directory of the open buffer
+map <leader>cd :cd %:p:h<cr>:pwd<cr>
+
+" Specify the behavior when switching between buffers 
+try
+  set switchbuf=useopen,usetab,newtab
+  set stal=2
+catch
+endtry
+
+" Return to last edit position when opening files (You want this!)
+au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+
+
+""""""""""""""""""""""""""""""
+" => Status line
+""""""""""""""""""""""""""""""
+" Always show the status line
+set laststatus=2
+
+" Format the status line
+set statusline=\ %{HasPaste()}%F%m%r%h\ %w\ \ CWD:\ %r%{getcwd()}%h\ \ \ Line:\ %l\ \ Column:\ %c
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Editing mappings
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Remap VIM 0 to first non-blank character
+map 0 ^
+
+" Move a line of text using ALT+[jk] or Command+[jk] on mac
+nmap <M-j> mz:m+<cr>`z
+nmap <M-k> mz:m-2<cr>`z
+vmap <M-j> :m'>+<cr>`<my`>mzgv`yo`z
+vmap <M-k> :m'<-2<cr>`>my`<mzgv`yo`z
+
+if has("mac") || has("macunix")
+  nmap <D-j> <M-j>
+  nmap <D-k> <M-k>
+  vmap <D-j> <M-j>
+  vmap <D-k> <M-k>
+endif
+
+" Delete trailing white space on save, useful for Python and CoffeeScript ;)
+func! DeleteTrailingWS()
+  exe "normal mz"
+  %s/\s\+$//ge
+  exe "normal `z"
+endfunc
+autocmd BufWrite *.py :call DeleteTrailingWS()
+autocmd BufWrite *.coffee :call DeleteTrailingWS()
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Ag searching and cope displaying
+"    requires ag.vim - it's much better than vimgrep/grep
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" When you press gv you Ag after the selected text
+vnoremap <silent> gv :call VisualSelection('gv', '')<CR>
+
+" Open Ag and put the cursor in the right position
+map <leader>g :Ag 
+
+" When you press <leader>r you can search and replace the selected text
+vnoremap <silent> <leader>r :call VisualSelection('replace', '')<CR>
+
+" Do :help cope if you are unsure what cope is. It's super useful!
+"
+" When you search with Ag, display your results in cope by doing:
+"   <leader>cc
+"
+" To go to the next search result do:
+"   <leader>n
+"
+" To go to the previous search results do:
+"   <leader>p
+"
+map <leader>cc :botright cope<cr>
+map <leader>co ggVGy:tabnew<cr>:set syntax=qf<cr>pgg
+map <leader>n :cn<cr>
+map <leader>p :cp<cr>
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Spell checking
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Pressing ,ss will toggle and untoggle spell checking
+map <leader>ss :setlocal spell!<cr>
+
+" Shortcuts using <leader>
+map <leader>sn ]s
+map <leader>sp [s
+map <leader>sa zg
+map <leader>s? z=
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Misc
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Remove the Windows ^M - when the encodings gets messed up
+noremap <Leader>m mmHmt:%s/<C-V><cr>//ge<cr>'tzt'm
+
+" Quickly open a buffer for scribble
+map <leader>q :e ~/buffer<cr>
+
+" Quickly open a markdown buffer for scribble
+map <leader>x :e ~/buffer.md<cr>
+
+" Toggle paste mode on and off
+map <leader>pp :setlocal paste!<cr>
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Helper functions
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! CmdLine(str)
+    exe "menu Foo.Bar :" . a:str
+    emenu Foo.Bar
+    unmenu Foo
+endfunction 
+
+function! VisualSelection(direction, extra_filter) range
+    let l:saved_reg = @"
+    execute "normal! vgvy"
+
+    let l:pattern = escape(@", '\\/.*$^~[]')
+    let l:pattern = substitute(l:pattern, "\n$", "", "")
+
+    if a:direction == 'gv'
+        call CmdLine("Ag \"" . l:pattern . "\" " )
+    elseif a:direction == 'replace'
+        call CmdLine("%s" . '/'. l:pattern . '/')
+    endif
+
+    let @/ = l:pattern
+    let @" = l:saved_reg
 endfunction
 
-" Set tabline.
-function! s:my_tabline()  "{{{
-  let s = ''
-  for i in range(1, tabpagenr('$'))
-    let bufnrs = tabpagebuflist(i)
-    let bufnr = bufnrs[tabpagewinnr(i) - 1]  " first window, first appears
-    let no = i  " display 0-origin tabpagenr.
-    let mod = getbufvar(bufnr, '&modified') ? '!' : ' '
-    let title = fnamemodify(bufname(bufnr), ':t')
-    let title = '[' . title . ']'
-    let s .= '%'.i.'T'
-    let s .= '%#' . (i == tabpagenr() ? 'TabLineSel' : 'TabLine') . '#'
-    let s .= no . ':' . title
-    let s .= mod
-    let s .= '%#TabLineFill# '
-  endfor
-  let s .= '%#TabLineFill#%T%=%#TabLine#'
-  return s
-endfunction "}}}
-let &tabline = '%!'. s:SID_PREFIX() . 'my_tabline()'
-set showtabline=2 
 
-" The prefix key.
-nnoremap    [Tag]   <Nop>
-nmap    t [Tag]
-" Tab jump
-for n in range(1, 9)
-  execute 'nnoremap <silent> [Tag]'.n  ':<C-u>tabnext'.n.'<CR>'
-endfor
-map <silent> [Tag]n :tabnext<CR>
+" Returns true if paste mode is enabled
+function! HasPaste()
+    if &paste
+        return 'PASTE MODE  '
+    endif
+    return ''
+endfunction
 
-" END of Tab ======================
+" Don't close window, when deleting a buffer
+command! Bclose call <SID>BufcloseCloseIt()
+function! <SID>BufcloseCloseIt()
+   let l:currentBufNum = bufnr("%")
+   let l:alternateBufNum = bufnr("#")
 
-" airline
- if !exists('g:airline_symbols')
-    let g:airline_symbols = {}
-  endif
+   if buflisted(l:alternateBufNum)
+     buffer #
+   else
+     bnext
+   endif
 
-  let g:airline_left_sep = ''
-  let g:airline_left_alt_sep = ''
-  let g:airline_right_sep = ''
-  let g:airline_right_alt_sep = ''
-  let g:airline_symbols.branch = ''
-  let g:airline_symbols.readonly = ''
-  let g:airline_symbols.linenr = ''
+   if bufnr("%") == l:currentBufNum
+     new
+   endif
+
+   if buflisted(l:currentBufNum)
+     execute("bdelete! ".l:currentBufNum)
+   endif
+endfunction
+
+" Make VIM remember position in file after reopen
+if has("autocmd")
+   au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+endif
 
 
