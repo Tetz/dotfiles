@@ -1,8 +1,6 @@
 # Tetz’s dotfiles
 
-## Installation
-
-#### Just run the setup script
+## Setup 
 
 ```shell
 cd
