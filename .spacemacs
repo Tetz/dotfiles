@@ -42,7 +42,10 @@ values."
      html
      javascript
      react
-     scala
+     ;; Start ensime automatically and hide ensime's notification
+     (scala :variables
+         scala-auto-start-ensime t
+         scala-enable-eldoc-mode t)
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
@@ -72,6 +75,7 @@ values."
      all-the-icons
      swift-mode
      terraform-mode
+     scala-mode
    )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -150,7 +154,7 @@ values."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Hack"
-                               :size 16
+                               :size 15
                                :weight normal
                                :width normal
                                :powerline-scale 1.0)
@@ -301,15 +305,9 @@ values."
    ))
 
 (defun dotspacemacs/user-init ()
-  "Initialization function for user code.
-It is called immediately after `dotspacemacs/init', before layer configuration
-executes.
- This function is mostly useful for variables that need to be set
-before packages are loaded. If you are unsure, you should try in setting them in
-`Dotspacemacs/user-config' first."
   (push '("melpa-stable" . "stable.melpa.org/packages/") configuration-layer--elpa-archives)
   (push '("ensime" . "melpa-stable") package-pinned-packages)
-  )
+)
 
 (defun dotspacemacs/user-config ()
   ;; Icon
@@ -409,21 +407,14 @@ before packages are loaded. If you are unsure, you should try in setting them in
       (progn (call-process eslint nil "*ESLint Errors*" nil "--fix" buffer-file-name)
              (revert-buffer t t t))))
   (provide 'eslint-fix)
-
   ;; Start ensime automatically and hide ensime's notification
+  (add-hook 'scala-mode-hook 'ensime)
   (setq ensime-startup-notification nil)
   (setq ensime-startup-snapshot-notification nil)
-  (add-hook 'scala-mode-hook 'ensime)
 
   ;; scalastyle
   (setq-default flycheck-scalastylerc "scalastyle_config.xml")
 
-  "Configuration function for user code.
-This function is called at the very end of Spacemacs initialization after
-layers configuration.
-This is the place where most of your configurations should be done. Unless it is
-explicitly specified that a variable should be set before a package is loaded,
-you should place your code here."
 (setq ensime-startup-snapshot-notification nil)
   )
 
@@ -434,16 +425,47 @@ you should place your code here."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-color-faces-vector
+   [default bold shadow italic underline bold bold-italic bold])
  '(ansi-color-names-vector
    ["#0a0814" "#f2241f" "#67b11d" "#b1951d" "#4f97d7" "#a31db1" "#28def0" "#b2b2b2"])
+ '(custom-enabled-themes (quote (misterioso)))
+ '(custom-safe-themes
+   (quote
+    ("fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "98cc377af705c0f2133bb6d340bf0becd08944a588804ee655809da5d8140de6" "5dc0ae2d193460de979a463b907b4b2c6d2c9c4657b2e9e66b8898d2592e3de5" default)))
+ '(evil-want-Y-yank-to-eol nil)
+ '(fci-rule-color "#ECEFF1" t)
  '(flycheck-disabled-checkers (quote (javascript-jshint javascript-jscs)))
+ '(hl-sexp-background-color "#efebe9")
  '(package-selected-packages
    (quote
-    (flycheck-gometalinter memoize go-guru go-eldoc company-go go-mode swift-mode yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode helm-pydoc cython-mode company-anaconda anaconda-mode pythonic reveal-in-osx-finder pbcopy osx-trash osx-dictionary launchctl terraform-mode hcl-mode all-the-icons font-lock+ sql-indent eslintd-fix eslint-fix unfill smeargle orgit mwim magit-gitflow helm-gitignore helm-company helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor diff-hl company-web web-completion-data company-tern dash-functional company-statistics auto-yasnippet auto-dictionary ac-ispell auto-complete tern yaml-mode mmm-mode markdown-toc markdown-mode gh-md web-mode tagedit slim-mode scss-mode sass-mode pug-mode less-css-mode helm-css-scss haml-mode emmet-mode helm-ls-git noflet ensime company sbt-mode scala-mode web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor yasnippet multiple-cursors js2-mode js-doc coffee-mode winum ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide ido-vertical-mode hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed dash aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async quelpa package-build spacemacs-theme))))
+    (flycheck-gometalinter memoize go-guru go-eldoc company-go go-mode swift-mode yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode helm-pydoc cython-mode company-anaconda anaconda-mode pythonic reveal-in-osx-finder pbcopy osx-trash osx-dictionary launchctl terraform-mode hcl-mode all-the-icons font-lock+ sql-indent eslintd-fix eslint-fix unfill smeargle orgit mwim magit-gitflow helm-gitignore helm-company helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor diff-hl company-web web-completion-data company-tern dash-functional company-statistics auto-yasnippet auto-dictionary ac-ispell auto-complete tern yaml-mode mmm-mode markdown-toc markdown-mode gh-md web-mode tagedit slim-mode scss-mode sass-mode pug-mode less-css-mode helm-css-scss haml-mode emmet-mode helm-ls-git noflet ensime company sbt-mode scala-mode web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor yasnippet multiple-cursors js2-mode js-doc coffee-mode winum ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide ido-vertical-mode hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed dash aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async quelpa package-build spacemacs-theme)))
+ '(vc-annotate-background nil)
+ '(vc-annotate-color-map
+   (quote
+    ((20 . "#B71C1C")
+     (40 . "#FF5722")
+     (60 . "#FFA000")
+     (80 . "#558b2f")
+     (100 . "#00796b")
+     (120 . "#2196f3")
+     (140 . "#4527A0")
+     (160 . "#B71C1C")
+     (180 . "#FF5722")
+     (200 . "#FFA000")
+     (220 . "#558b2f")
+     (240 . "#00796b")
+     (260 . "#2196f3")
+     (280 . "#4527A0")
+     (300 . "#B71C1C")
+     (320 . "#FF5722")
+     (340 . "#FFA000")
+     (360 . "#558b2f"))))
+ '(vc-annotate-very-old-color nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((((class color) (min-colors 89)) (:foreground "#ffffff" :background "#263238")))))
+ '(default ((((class color) (min-colors 89)) (:foreground "#ffffff" :background "#263238" :family "Hack" :foundry "nil" :slant normal :weight normal :height 151 :width normal)))))
 
