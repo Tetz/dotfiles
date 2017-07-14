@@ -42,10 +42,7 @@ values."
      html
      javascript
      react
-     ;; Start ensime automatically and hide ensime's notification
-     (scala :variables
-         scala-auto-start-ensime t
-         scala-enable-eldoc-mode t)
+     scala
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
@@ -75,7 +72,6 @@ values."
      all-the-icons
      swift-mode
      terraform-mode
-     scala-mode
    )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -154,7 +150,7 @@ values."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Hack"
-                               :size 15
+                               :size 13
                                :weight normal
                                :width normal
                                :powerline-scale 1.0)
@@ -393,21 +389,20 @@ values."
       (cond ((file-executable-p local-command) local-command)
             (else global-command))))
 
-                                        ; https://github.com/syl20bnr/spacemacs/blob/master/layers/%2Bframeworks/react/funcs.el#L30
   (defun my/prefer-local-eslint ()
     (let ((eslint (my/npm-command "eslint")))
       (setq-local flycheck-javascript-eslint-executable eslint)))
   (add-hook 'js2-mode-hook 'my/prefer-local-eslint)
 
-                                        ; prefer local eslint than global eslint
-                                        ; https://github.com/codesuki/eslint-fix/blob/master/eslint-fix.el
   (defun eslint-fix ()
     (interactive)
     (let ((eslint (my/npm-command "eslint")))
       (progn (call-process eslint nil "*ESLint Errors*" nil "--fix" buffer-file-name)
              (revert-buffer t t t))))
   (provide 'eslint-fix)
+
   ;; Start ensime automatically and hide ensime's notification
+  (setq imenu-auto-rescan t)
   (add-hook 'scala-mode-hook 'ensime)
   (setq ensime-startup-notification nil)
   (setq ensime-startup-snapshot-notification nil)
@@ -415,7 +410,6 @@ values."
   ;; scalastyle
   (setq-default flycheck-scalastylerc "scalastyle_config.xml")
 
-(setq ensime-startup-snapshot-notification nil)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -429,7 +423,7 @@ values."
    [default bold shadow italic underline bold bold-italic bold])
  '(ansi-color-names-vector
    ["#0a0814" "#f2241f" "#67b11d" "#b1951d" "#4f97d7" "#a31db1" "#28def0" "#b2b2b2"])
- '(custom-enabled-themes (quote (misterioso)))
+ '(custom-enabled-themes (quote (material)))
  '(custom-safe-themes
    (quote
     ("fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "98cc377af705c0f2133bb6d340bf0becd08944a588804ee655809da5d8140de6" "5dc0ae2d193460de979a463b907b4b2c6d2c9c4657b2e9e66b8898d2592e3de5" default)))
