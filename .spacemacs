@@ -266,7 +266,7 @@ values."
    ;; If non nil line numbers are turned on in all `prog-mode' and `text-mode'
    ;; derivatives. If set to `relative', also turns on relative line numbers.
    ;; (default nil)
-   dotspacemacs-line-numbers nil
+   dotspacemacs-line-numbers t
    ;; Code folding method. Possible values are `evil' and `origami'.
    ;; (default 'evil)
    dotspacemacs-folding-method 'evil
@@ -309,6 +309,11 @@ values."
   ;; Icon
   (require 'all-the-icons)
   (setq neo-theme 'icons)
+
+  ;; linum-mode performance hack: http://d.hatena.ne.jp/daimatz/20120215/1329248780
+  (setq linum-delay t)
+  (defadvice linum-schedule (around my-linum-schedule () activate)
+    (run-with-idle-timer 0.2 nil #'linum-update-current))
 
   ;; Indent
   (setq-default js2-strict-missing-semi-warning nil
