@@ -311,10 +311,13 @@ values."
 )
 
 (defun dotspacemacs/user-config ()
+  ;; Auto-completion
+  (global-company-mode t)
+  (company-mode t)
+
   ;; iOS
   (require 'company-sourcekit)
   (add-to-list 'company-backends 'company-sourcekit)
-  ;; (add-to-list 'auto-mode-alist '("\\.swift\\'" . company-backends))
 
   ;; Icon
   (require 'all-the-icons)
