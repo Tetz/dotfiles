@@ -157,7 +157,7 @@ tmux_conf_theme_right_separator_sub=''  #   PowerlineSymbols.otf font
 #     - #{uptime_s}
 #     - #{username}
 #     - #{username_ssh}
-tmux_conf_theme_status_left=' #{username} |'
+tmux_conf_theme_status_left=''
 tmux_conf_theme_status_right=''
 
 # status left style
