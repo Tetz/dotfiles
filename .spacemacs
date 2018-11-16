@@ -60,8 +60,8 @@
                                 (projects . 7))
    dotspacemacs-startup-buffer-responsive t
    dotspacemacs-scratch-mode 'text-mode
-   dotspacemacs-themes '(sanityinc-tomorrow-bright)
-   ;; dotspacemacs-themes '(ujelly)
+   ;; dotspacemacs-themes '(sanityinc-tomorrow-bright)
+   dotspacemacs-themes '(ujelly)
    ;; dotspacemacs-themes '(tango-2)
    ;; dotspacemacs-themes '(grandshell)
    ;; dotspacemacs-themes '(wombat)
@@ -161,23 +161,23 @@
   (add-to-list 'auto-mode-alist '("\\.js$" . react-mode))
 
   ;; Web-mode color
-  (custom-set-faces
-   '(web-mode-doctype-face           ((t (:foreground "#4A8ACA"))))
-   '(web-mode-html-tag-face          ((t (:foreground "#55efc4"))))
-   '(web-mode-html-tag-bracket-face  ((t (:foreground "#dfe6e9"))))
-   '(web-mode-html-attr-name-face    ((t (:foreground "#ffeaa7"))))
-   '(web-mode-html-attr-equal-face   ((t (:foreground "#FFFFFF"))))
-   '(web-mode-html-attr-value-face   ((t (:foreground "#fd79a8"))))
-   '(web-mode-comment-face           ((t (:foreground "#74b9ff"))))
-   '(web-mode-server-comment-face    ((t (:foreground "#74b9ff"))))
-
-   '(web-mode-css-at-rule-face       ((t (:foreground "#DFCF44"))))
-   '(web-mode-comment-face           ((t (:foreground "#74b9ff"))))
-   '(web-mode-css-selector-face      ((t (:foreground "#DFCF44"))))
-   '(web-mode-css-pseudo-class       ((t (:foreground "#DFCF44"))))
-   '(web-mode-css-property-name-face ((t (:foreground "#87CEEB"))))
-   '(web-mode-css-string-face        ((t (:foreground "#D78181"))))
-   )
+;;  (custom-set-faces
+;;   '(web-mode-doctype-face           ((t (:foreground "#4A8ACA"))))
+;;   '(web-mode-html-tag-face          ((t (:foreground "#55efc4"))))
+;;   '(web-mode-html-tag-bracket-face  ((t (:foreground "#dfe6e9"))))
+;;   '(web-mode-html-attr-name-face    ((t (:foreground "#ffeaa7"))))
+;;   '(web-mode-html-attr-equal-face   ((t (:foreground "#FFFFFF"))))
+;;   '(web-mode-html-attr-value-face   ((t (:foreground "#fd79a8"))))
+;;   '(web-mode-comment-face           ((t (:foreground "#74b9ff"))))
+;;   '(web-mode-server-comment-face    ((t (:foreground "#74b9ff"))))
+;;
+;;   '(web-mode-css-at-rule-face       ((t (:foreground "#DFCF44"))))
+;;   '(web-mode-comment-face           ((t (:foreground "#74b9ff"))))
+;;   '(web-mode-css-selector-face      ((t (:foreground "#DFCF44"))))
+;;   '(web-mode-css-pseudo-class       ((t (:foreground "#DFCF44"))))
+;;   '(web-mode-css-property-name-face ((t (:foreground "#87CEEB"))))
+;;   '(web-mode-css-string-face        ((t (:foreground "#D78181"))))
+;;   )
 
   ;; turn on flychecking globally
   (add-hook 'after-init-hook #'global-flycheck-mode)
