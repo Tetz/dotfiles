@@ -1,0 +1,8 @@
+# This is Git's per-user configuration file.
+[core]
+    editor = vim
+[alias]
+  co = checkout
+  ci = commit
+  st = status
+  br = branch
