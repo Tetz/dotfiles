@@ -6,3 +6,6 @@
   ci = commit
   st = status
   br = branch
+[user]
+	email = t@ineeza.com
+	name = Takemoto Tetsuro
