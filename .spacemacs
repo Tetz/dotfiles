@@ -9,6 +9,7 @@
    dotspacemacs-configuration-layer-path '()
    dotspacemacs-configuration-layers
    '(
+     csv
      ;; ----------------------------------------------------------------
      ;; <M-m f e R> (Emacs style) to install them.
      ;; ----------------------------------------------------------------
@@ -49,6 +50,7 @@
      rjsx-mode
      go-mode
      company-sourcekit
+     prettier-js
    )
    dotspacemacs-frozen-packages '()
    dotspacemacs-excluded-packages '()
@@ -130,6 +132,8 @@
   ;; Shortcuts
   (spacemacs/set-leader-keys "fi" 'helm-ls-git-ls)
   (spacemacs/set-leader-keys "gp" 'grep-find)
+  (spacemacs/set-leader-keys "-" 'split-window-vertically)
+  (spacemacs/set-leader-keys "\\" 'split-window-horizontally)
 
   ;; PowerLine Separator
   (setq powerline-default-separator 'arrow)
@@ -151,94 +155,6 @@
   (defadvice linum-schedule (around my-linum-schedule () activate)
     (run-with-idle-timer 0.2 nil #'linum-update-current))
 
-  ;; Indent
-  (setq-default js2-strict-missing-semi-warning nil
-                js2-basic-offset 2
-                js-indent-level 2)
-
-  ;; Eslint
-  (eval-after-load 'flycheck
-    '(custom-set-variables
-      '(flycheck-disabled-checkers '(javascript-jshint javascript-jscs))
-      ))
-  ;; use web-mode for .jsx files
-  (add-to-list 'auto-mode-alist '("\\.js$" . react-mode))
-
-  ;; turn on flychecking globally
-  (add-hook 'after-init-hook #'global-flycheck-mode)
-
-  ;; disable jshint since we prefer eslint checking
-  (setq-default flycheck-disabled-checkers
-                (append flycheck-disabled-checkers
-                        '(javascript-jshint)))
-
-  ;; use eslint with web-mode for jsx files
-   (flycheck-add-mode 'javascript-eslint 'web-mode)
-
-  ;; customize flycheck temp file prefix
-  (setq-default flycheck-temp-prefix ".flycheck")
-
-  ;; disable json-jsonlist checking for json files
-  (setq-default flycheck-disabled-checkers
-                (append flycheck-disabled-checkers
-                        '(json-jsonlist)))
-
-  ;; https://github.com/purcell/exec-path-from-shell
-  ;; only need exec-path-from-shell on OSX
-  ;; this hopefully sets up path and other vars better
-  (when (memq window-system '(mac ns))
-    (exec-path-from-shell-initialize))
-  ;; use local eslint from node_modules before global
-  ;; http://emacs.stackexchange.com/questions/21205/flycheck-with-file-relative-eslint-executable
-  (defun my/use-eslint-from-node-modules ()
-    (let* ((root (locate-dominating-file
-                  (or (buffer-file-name) default-directory)
-                  "node_modules"))
-           (eslint (and root
-                        (expand-file-name "node_modules/eslint/bin/eslint.js"
-                                          root))))
-      (when (and eslint (file-executable-p eslint))
-        (setq-local flycheck-javascript-eslint-executable eslint))))
-  (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
-  ;; adjust indents for web-mode to 2 spaces
-  (defun my-web-mode-hook ()
-    "Hooks for Web mode. Adjust indents"
-  ;;; http://web-mode.org/
-    (setq web-mode-markup-indent-offset 2)
-    (setq web-mode-css-indent-offset 2)
-    (setq web-mode-code-indent-offset 2))
-  (add-hook 'web-mode-hook  'my-web-mode-hook)
-
-  ;; for better jsx syntax-highlighting in web-mode
-  ;; - courtesy of Patrick @halbtuerke
-  (defadvice web-mode-highlight-part (around tweak-jsx activate)
-    (if (equal web-mode-content-type "jsx")
-        (let ((web-mode-enable-part-face nil))
-          ad-do-it)
-      ad-do-it))
-
-  (defun my/npm-command(command)
-    (let* ((root (locate-dominating-file
-                  (or (buffer-file-name) default-directory)
-                  "node_modules"))
-           (global-command (executable-find command))
-           (local-command (expand-file-name (concat "node_modules/.bin/" command) root)))
-
-      (cond ((file-executable-p local-command) local-command)
-            (else global-command))))
-
-  (defun my/prefer-local-eslint ()
-    (let ((eslint (my/npm-command "eslint")))
-      (setq-local flycheck-javascript-eslint-executable eslint)))
-  (add-hook 'js2-mode-hook 'my/prefer-local-eslint)
-
-  (defun eslint-fix ()
-    (interactive)
-    (let ((eslint (my/npm-command "eslint")))
-      (progn (call-process eslint nil "*ESLint Errors*" nil "--fix" buffer-file-name)
-             (revert-buffer t t t))))
-  (provide 'eslint-fix)
-
   ;; Go-lang
   (setq go-use-gometalinter t)
   (setq go-backend 'lsp)
@@ -246,6 +162,44 @@
   (setq go-tab-width 4)
   (setq go-use-test-args "-race -timeout 10s")
   (setq godoc-at-point-function 'godoc-gogetdoc)
+
+  ;; Typescript
+  (setq-default typescript-indent-level 2)
+  (setq typescript-fmt-on-save t)
+  (setq typescript-fmt-tool 'typescript-formatter)
+  (setq typescript-linter 'eslint)
+  ;; Enable React syntax highlighting for .tsx files
+  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . react-mode))
+
+  ;; Flycheck
+  (defun my-use-local-lint ()
+    "Use local lint if exist it."
+    (let* ((root (locate-dominating-file
+                  (or (buffer-file-name) default-directory) "node_modules"))
+           (eslint (and root (expand-file-name "node_modules/.bin/eslint" root)))
+           (tslint (and root (expand-file-name "node_modules/.bin/tslint" root))))
+      (when (and eslint (file-executable-p eslint))
+        (setq-local flycheck-javascript-eslint-executable eslint)
+        (setq-local auto-fix-command eslint))
+      (when (and tslint (file-executable-p tslint))
+        (setq-local flycheck-typescript-tslint-executable tslint)
+        (setq-local auto-fix-command tslint))))
+
+  (add-hook 'flycheck-mode-hook #'my-use-local-lint)
+
+  ;; auto-fix
+  (eval-after-load 'js-mode
+    '(add-hook 'js-mode-hook (lambda () (add-hook 'after-save-hook 'eslint-fix nil t))))
+
+  (eval-after-load 'js2-mode
+    '(add-hook 'js2-mode-hook (lambda () (add-hook 'after-save-hook 'eslint-fix nil t))))
+
+  (eval-after-load 'web-mode
+    '(add-hook 'web-mode-hook (lambda () (add-hook 'after-save-hook 'eslint-fix nil t))))
+
+  (eval-after-load 'react-mode
+    '(add-hook 'react-mode-hook (lambda () (add-hook 'after-save-hook 'eslint-fix nil t))))
+
 )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -259,7 +213,7 @@
  '(flycheck-disabled-checkers (quote (javascript-jshint javascript-jscs)))
  '(package-selected-packages
    (quote
-    (tide typescript-mode vimrc-mode dactyl-mode flycheck-gometalinter go-guru go-eldoc company-go go-mode zenburn-theme zen-and-art-theme yapfify yaml-mode white-sand-theme web-mode web-beautify vue-mode edit-indirect ssass-mode vue-html-mode unfill underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit swift-mode sunny-day-theme sublime-themes subatomic256-theme subatomic-theme sql-indent spacegray-theme soothe-theme solidity-mode solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smeargle slim-mode seti-theme scss-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe rjsx-mode reverse-theme reveal-in-osx-finder rebecca-theme rbenv rake rainbow-mode rainbow-identifiers railscasts-theme pyvenv pytest pyenv-mode py-isort purple-haze-theme pug-mode professional-theme planet-theme pip-requirements phpunit phpcbf php-extras php-auto-yasnippets phoenix-dark-pink-theme phoenix-dark-mono-theme pbcopy osx-trash osx-dictionary orgit organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noflet noctilux-theme naquadah-theme mwim mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme mmm-mode minitest minimal-theme material-theme markdown-toc markdown-mode majapahit-theme magit-gitflow madhat2r-theme lush-theme livid-mode skewer-mode simple-httpd live-py-mode light-soap-theme less-css-mode launchctl js2-refactor multiple-cursors js2-mode js-doc jbeans-theme jazz-theme ir-black-theme inkpot-theme hy-mode heroku-theme hemisu-theme helm-pydoc helm-ls-git helm-gitignore helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gh-md gandalf-theme fuzzy flycheck-pos-tip pos-tip flycheck flatui-theme flatland-theme farmhouse-theme exotica-theme evil-magit magit transient git-commit with-editor espresso-theme eslint-fix ensime sbt-mode scala-mode emmet-mode drupal-mode php-mode dracula-theme dockerfile-mode docker json-mode tablist magit-popup docker-tramp json-snatcher json-reformat django-theme disaster diff-hl darktooth-theme autothemer darkokai-theme darkmine-theme darkburn-theme dakrone-theme cython-mode cyberpunk-theme company-web web-completion-data company-tern tern company-statistics company-sourcekit sourcekit dash-functional company-c-headers company-anaconda company color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized color-identifiers-mode coffee-mode cmake-mode clues-theme clang-format chruby cherry-blossom-theme busybee-theme bundler inf-ruby bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme auto-yasnippet yasnippet apropospriate-theme anti-zenburn-theme anaconda-mode pythonic ample-zen-theme ample-theme all-the-icons memoize alect-themes afternoon-theme ac-ispell auto-complete ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra lv hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile projectile pkg-info epl helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist highlight evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
+    (csv-mode prettier-js tide typescript-mode vimrc-mode dactyl-mode flycheck-gometalinter go-guru go-eldoc company-go go-mode zenburn-theme zen-and-art-theme yapfify yaml-mode white-sand-theme web-mode web-beautify vue-mode edit-indirect ssass-mode vue-html-mode unfill underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit swift-mode sunny-day-theme sublime-themes subatomic256-theme subatomic-theme sql-indent spacegray-theme soothe-theme solidity-mode solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smeargle slim-mode seti-theme scss-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe rjsx-mode reverse-theme reveal-in-osx-finder rebecca-theme rbenv rake rainbow-mode rainbow-identifiers railscasts-theme pyvenv pytest pyenv-mode py-isort purple-haze-theme pug-mode professional-theme planet-theme pip-requirements phpunit phpcbf php-extras php-auto-yasnippets phoenix-dark-pink-theme phoenix-dark-mono-theme pbcopy osx-trash osx-dictionary orgit organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noflet noctilux-theme naquadah-theme mwim mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme mmm-mode minitest minimal-theme material-theme markdown-toc markdown-mode majapahit-theme magit-gitflow madhat2r-theme lush-theme livid-mode skewer-mode simple-httpd live-py-mode light-soap-theme less-css-mode launchctl js2-refactor multiple-cursors js2-mode js-doc jbeans-theme jazz-theme ir-black-theme inkpot-theme hy-mode heroku-theme hemisu-theme helm-pydoc helm-ls-git helm-gitignore helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gh-md gandalf-theme fuzzy flycheck-pos-tip pos-tip flycheck flatui-theme flatland-theme farmhouse-theme exotica-theme evil-magit magit transient git-commit with-editor espresso-theme eslint-fix ensime sbt-mode scala-mode emmet-mode drupal-mode php-mode dracula-theme dockerfile-mode docker json-mode tablist magit-popup docker-tramp json-snatcher json-reformat django-theme disaster diff-hl darktooth-theme autothemer darkokai-theme darkmine-theme darkburn-theme dakrone-theme cython-mode cyberpunk-theme company-web web-completion-data company-tern tern company-statistics company-sourcekit sourcekit dash-functional company-c-headers company-anaconda company color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized color-identifiers-mode coffee-mode cmake-mode clues-theme clang-format chruby cherry-blossom-theme busybee-theme bundler inf-ruby bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme auto-yasnippet yasnippet apropospriate-theme anti-zenburn-theme anaconda-mode pythonic ample-zen-theme ample-theme all-the-icons memoize alect-themes afternoon-theme ac-ispell auto-complete ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra lv hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile projectile pkg-info epl helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist highlight evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
