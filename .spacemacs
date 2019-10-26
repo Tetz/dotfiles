@@ -7,12 +7,12 @@
    dotspacemacs-enable-lazy-installation 'unused
    dotspacemacs-ask-for-lazy-installation t
    dotspacemacs-configuration-layer-path '()
+   ;; ----------------------------------------------------------------
+   ;; <M-m f e R> (Emacs style) to install them.
+   ;; ----------------------------------------------------------------
    dotspacemacs-configuration-layers
    '(
      csv
-     ;; ----------------------------------------------------------------
-     ;; <M-m f e R> (Emacs style) to install them.
-     ;; ----------------------------------------------------------------
      typescript
      vimscript
      docker
@@ -168,6 +168,19 @@
   (setq go-use-test-args "-race -timeout 10s")
   (setq godoc-at-point-function 'godoc-gogetdoc)
 
+  ;; Javascript
+  (setq-default
+   ;; js-mode and js2-mode
+   js-indent-level 2
+   js2-basic-offset 2
+   ;; web-mode
+   css-indent-offset 2
+   web-mode-markup-indent-offset 2
+   web-mode-css-indent-offset 2
+   web-mode-code-indent-offset 2
+   web-mode-attr-indent-offset 2)
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+
   ;; Typescript
   (setq-default typescript-indent-level 2)
   (setq typescript-fmt-on-save t)
@@ -192,7 +205,7 @@
 
   (add-hook 'flycheck-mode-hook #'my-use-local-lint)
 
-  ;; auto-fix
+  ;; Javascript auto-fix
   (eval-after-load 'js-mode
     '(add-hook 'js-mode-hook (lambda () (add-hook 'after-save-hook 'eslint-fix nil t))))
 
