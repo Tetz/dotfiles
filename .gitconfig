@@ -1,11 +1,12 @@
 # This is Git's per-user configuration file.
 [core]
     editor = vim
+    excludesfile = /Users/t/.gitignore_global
 [alias]
-  co = checkout
-  ci = commit
-  st = status
-  br = branch
+    co = checkout
+    ci = commit
+    st = status
+    br = branch
 [user]
 	email = t@ineeza.com
 	name = Takemoto Tetsuro
