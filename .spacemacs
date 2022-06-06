@@ -29,7 +29,7 @@
      html
      javascript
      react
-     php
+     ;;php
      scala
      swift
      colors
@@ -40,6 +40,8 @@
      markdown
      syntax-checking
      version-control
+     neotree
+     prettier
    )
    dotspacemacs-additional-packages '(
      mozc
@@ -81,7 +83,7 @@
                                :size 18
                                :weight normal
                                :width normal
-                               :powerline-scale 1.4)
+                               :powerline-scale 1.2)
    dotspacemacs-leader-key "SPC"
    dotspacemacs-emacs-command-key "SPC"
    dotspacemacs-ex-command-key ":"
@@ -168,6 +170,9 @@
   (setq go-use-test-args "-race -timeout 10s")
   (setq godoc-at-point-function 'godoc-gogetdoc)
 
+  ;; Python
+  (setq python-shell-interpreter "python3")
+
   ;; Javascript
   (setq-default
    ;; js-mode and js2-mode
@@ -180,43 +185,29 @@
    web-mode-code-indent-offset 2
    web-mode-attr-indent-offset 2)
   (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.mjs\\'" . web-mode))
 
   ;; Typescript
   (setq-default typescript-indent-level 2)
   (setq typescript-fmt-on-save t)
-  (setq typescript-fmt-tool 'typescript-formatter)
+  (setq typescript-fmt-tool 'prettier)
   (setq typescript-linter 'eslint)
   ;; Enable React syntax highlighting for .tsx files
-  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . react-mode))
-
-  ;; Flycheck
-  (defun my-use-local-lint ()
-    "Use local lint if exist it."
-    (let* ((root (locate-dominating-file
-                  (or (buffer-file-name) default-directory) "node_modules"))
-           (eslint (and root (expand-file-name "node_modules/.bin/eslint" root)))
-           (tslint (and root (expand-file-name "node_modules/.bin/tslint" root))))
-      (when (and eslint (file-executable-p eslint))
-        (setq-local flycheck-javascript-eslint-executable eslint)
-        (setq-local auto-fix-command eslint))
-      (when (and tslint (file-executable-p tslint))
-        (setq-local flycheck-typescript-tslint-executable tslint)
-        (setq-local auto-fix-command tslint))))
-
-  (add-hook 'flycheck-mode-hook #'my-use-local-lint)
+  (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
 
   ;; Javascript auto-fix
   (eval-after-load 'js-mode
-    '(add-hook 'js-mode-hook (lambda () (add-hook 'after-save-hook 'eslint-fix nil t))))
+    '(add-hook 'js-mode-hook (lambda () (add-hook 'after-save-hook 'prettier-js nil t))))
 
   (eval-after-load 'js2-mode
-    '(add-hook 'js2-mode-hook (lambda () (add-hook 'after-save-hook 'eslint-fix nil t))))
+    '(add-hook 'js2-mode-hook (lambda () (add-hook 'after-save-hook 'prettier-js nil t))))
 
   (eval-after-load 'web-mode
-    '(add-hook 'web-mode-hook (lambda () (add-hook 'after-save-hook 'eslint-fix nil t))))
+    '(add-hook 'web-mode-hook (lambda () (add-hook 'after-save-hook 'prettier-js nil t))))
 
   (eval-after-load 'react-mode
-    '(add-hook 'react-mode-hook (lambda () (add-hook 'after-save-hook 'eslint-fix nil t))))
+    '(add-hook 'react-mode-hook (lambda () (add-hook 'after-save-hook 'prettier-js nil t))))
 
 )
 

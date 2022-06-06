@@ -9,4 +9,11 @@
     br = branch
 [user]
 	email = t@ineeza.com
-	name = Takemoto Tetsuro
+	name = Tetsuro Takemoto
+[init]
+	defaultBranch = main
+[filter "lfs"]
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
