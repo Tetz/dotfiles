@@ -19,7 +19,9 @@
      git
      go
      ruby
-     python
+     (python :variables
+             python-backend 'lsp python-lsp-server 'pyright
+             python-format-on-save t)
      c-c++
      themes-megapack
      osx
@@ -170,9 +172,6 @@
   (setq go-use-test-args "-race -timeout 10s")
   (setq godoc-at-point-function 'godoc-gogetdoc)
 
-  ;; Python
-  (setq python-shell-interpreter "python3")
-
   ;; Javascript
   (setq-default
    ;; js-mode and js2-mode
@@ -186,6 +185,8 @@
    web-mode-attr-indent-offset 2)
   (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.mjs\\'" . web-mode))
+  (setq web-mode-content-types-alist
+        '(("jsx" . "\\.[c|m]js[x]?\\'")))
 
   ;; Typescript
   (setq-default typescript-indent-level 2)
