@@ -20,7 +20,8 @@
      go
      ruby
      (python :variables
-             python-backend 'lsp python-lsp-server 'pyright
+             python-backend 'anaconda
+             python-formatter 'yapf
              python-format-on-save t)
      c-c++
      themes-megapack
