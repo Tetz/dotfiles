@@ -20,8 +20,7 @@
      go
      ruby
      (python :variables
-             python-backend 'anaconda
-             python-formatter 'yapf
+             python-backend 'lsp
              python-format-on-save t)
      c-c++
      themes-megapack
@@ -45,6 +44,7 @@
      version-control
      neotree
      prettier
+     json
    )
    dotspacemacs-additional-packages '(
      mozc
@@ -169,6 +169,17 @@
   (defadvice linum-schedule (around my-linum-schedule () activate)
     (run-with-idle-timer 0.2 nil #'linum-update-current))
 
+  ;; Python
+  ;; Enable yapf autoformat on save
+  (defun enable-yapf-on-save ()
+    (add-hook 'before-save-hook 'yapfify-buffer nil t))
+
+  ;; Set yapf as the default formatter for Python
+  (setq python-black-command "yapf")
+
+  ;; Enable yapf on Python mode
+  (add-hook 'python-mode-hook 'enable-yapf-on-save)
+
   ;; Go-lang
   (setq go-use-gometalinter t)
   (setq go-backend 'lsp)
@@ -218,6 +229,11 @@
 
   (eval-after-load 'typescript-mode
     '(add-hook 'typescript-mode-hook (lambda () (add-hook 'after-save-hook 'prettier-js nil t))))
+
+  ;; JSON
+  (json :variables json-fmt-tool 'web-beautify)
+  ((json-mode (json-fmt-tool . prettier)))
+  (json :variables json-fmt-on-save t)
 
 )
 
